@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply, FastifyInstance, RegisterOptions } from 'fastify';
 import { PROVIDERS_LIST } from '@consumet/extensions';
 
-import gogoanime from './gogoanime';
+import anitaku from './anitaku'; // updated from gogoanime to anitaku
 import animepahe from './animepahe';
 import zoro from './zoro';
 import nineanime from './9anime';
@@ -14,7 +14,7 @@ import anix from './anix';
 import animekai from './animekai';
 
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
-  await fastify.register(gogoanime, { prefix: '/gogoanime' });
+  await fastify.register(anitaku, { prefix: '/anitaku' }); // updated prefix from /gogoanime to /anitaku
   await fastify.register(animepahe, { prefix: '/animepahe' });
   await fastify.register(zoro, { prefix: '/zoro' });
   await fastify.register(nineanime, { prefix: '/9anime' });
