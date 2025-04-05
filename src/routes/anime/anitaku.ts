@@ -6,14 +6,14 @@ import { redis } from '../../main';
 import { Redis } from 'ioredis';
 
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
-  const gogoanime = new ANIME.Gogoanime(process.env.GOGOANIME_URL);
+  const anitaku = new ANIME.anitaku(process.env.ANITAKU_URL);
   const redisCacheTime = 60 * 60;
-  const redisPrefix = 'gogoanime:';
+  const redisPrefix = 'anitaku:';
 
   fastify.get('/', (_, rp) => {
     rp.status(200).send({
       intro:
-        "Welcome to the gogoanime provider: check out the provider's website @ https://www1.gogoanime.bid/",
+        "Welcome to the gogoanime provider: check out the provider's website @ https://anitaku.to",
       routes: [
         '/:query',
         '/info/:id',
@@ -28,7 +28,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
         '/anime-list',
         '/download',
       ],
-      documentation: 'https://docs.consumet.org/#tag/gogoanime',
+      documentation: 'https://docs.consumet.org/#tag/anitaku',
     });
   });
 
@@ -39,9 +39,9 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     const res = redis ? await cache.fetch(
       redis as Redis,
       `${redisPrefix}search;${page};${query}`,
-      async () => await gogoanime.search(query, page),
+      async () => await anitaku.search(query, page),
       redisCacheTime,
-    ) : await gogoanime.search(query, page);
+    ) : await anitaku.search(query, page);
 
     reply.status(200).send(res);
   });
@@ -53,11 +53,11 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
       const res = redis ? await cache.fetch(
         redis as Redis,
         `${redisPrefix}info;${id}`,
-        async () => await gogoanime
+        async () => await anitaku
         .fetchAnimeInfo(id)
         .catch((err) => reply.status(404).send({ message: err })),
         redisCacheTime,
-      ) : await gogoanime
+      ) : await anitaku
       .fetchAnimeInfo(id)
       .catch((err) => reply.status(404).send({ message: err }));
 
@@ -77,11 +77,11 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
       const res = redis ? await cache.fetch(
         redis as Redis,
         `${redisPrefix}genre;${page};${genre}`,
-        async () => await gogoanime
+        async () => await anitaku
         .fetchGenreInfo(genre, page)
         .catch((err) => reply.status(404).send({ message: err })),
         redisCacheTime,
-      ) : await gogoanime
+      ) : await anitaku
       .fetchGenreInfo(genre, page)
       .catch((err) => reply.status(404).send({ message: err }));
       reply.status(200).send(res);
@@ -98,11 +98,11 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
       const res = redis ? await cache.fetch(
         redis as Redis,
         `${redisPrefix}genre-list`,
-        async () => await gogoanime
+        async () => await anitaku
         .fetchGenreList()
         .catch((err) => reply.status(404).send({ message: err })),
         redisCacheTime * 24,
-      ) : await gogoanime
+      ) : await anitaku
       .fetchGenreList()
       .catch((err) => reply.status(404).send({ message: err }));
       reply.status(200).send(res);
@@ -127,11 +127,11 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
         const res = redis ? await cache.fetch(
           redis as Redis,
           `${redisPrefix}watch;${server};${episodeId}`,
-          async () => await gogoanime
+          async () => await anitaku
           .fetchEpisodeSources(episodeId, server)
           .catch((err) => reply.status(404).send({ message: err })),
           redisCacheTime,
-        ) : await gogoanime
+        ) : await anitaku
         .fetchEpisodeSources(episodeId, server)
         .catch((err) => reply.status(404).send({ message: err }));
 
@@ -153,11 +153,11 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
         const res = redis ? await cache.fetch(
           redis as Redis,
           `${redisPrefix}servers;${episodeId}`,
-          async () => await gogoanime
+          async () => await anitaku
           .fetchEpisodeServers(episodeId)
           .catch((err) => reply.status(404).send({ message: err })),
           redisCacheTime,
-        ) : await gogoanime
+        ) : await anitaku
         .fetchEpisodeServers(episodeId)
         .catch((err) => reply.status(404).send({ message: err }));
 
@@ -177,9 +177,9 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
       const res = redis ? await cache.fetch(
         redis as Redis,
         `${redisPrefix}top-airing;${page}`,
-        async () => await gogoanime.fetchTopAiring(page),
+        async () => await anitaku.fetchTopAiring(page),
         redisCacheTime,
-      ) : await gogoanime.fetchTopAiring(page);
+      ) : await anitaku.fetchTopAiring(page);
 
       reply.status(200).send(res);
     } catch (err) {
@@ -196,9 +196,9 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
       const res = redis ? await cache.fetch(
         redis as Redis,
         `${redisPrefix}movies;${page}`,
-        async () => await gogoanime.fetchRecentMovies(page),
+        async () => await anitaku.fetchRecentMovies(page),
         redisCacheTime,
-      ) : await gogoanime.fetchRecentMovies(page);
+      ) : await anitaku.fetchRecentMovies(page);
 
       reply.status(200).send(res);
     } catch (err) {
@@ -215,9 +215,9 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
       const res = redis ? await cache.fetch(
         redis as Redis,
         `${redisPrefix}popular;${page}`,
-        async () => await gogoanime.fetchPopular(page),
+        async () => await anitaku.fetchPopular(page),
         redisCacheTime,
-      ) : await gogoanime.fetchPopular(page);
+      ) : await anitaku.fetchPopular(page);
 
       reply.status(200).send(res);
     } catch (err) {
@@ -237,9 +237,9 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
         const res = redis ? await cache.fetch(
           redis as Redis,
           `${redisPrefix}recent-episodes;${page};${type}`,
-          async () => await gogoanime.fetchRecentEpisodes(page, type),
+          async () => await anitaku.fetchRecentEpisodes(page, type),
           redisCacheTime,
-        ) : await gogoanime.fetchRecentEpisodes(page, type);
+        ) : await anitaku.fetchRecentEpisodes(page, type);
 
         reply.status(200).send(res);
       } catch (err) {
@@ -257,10 +257,10 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
 
         const res = redis ? await cache.fetch(
           redis as Redis,
-          `gogoanime:anime-list;${page}`,
-          async () => await gogoanime.fetchAnimeList(page),
+          `anitaku:anime-list;${page}`,
+          async () => await anitaku.fetchAnimeList(page),
           redisCacheTime,
-        ) : await gogoanime.fetchAnimeList(page);
+        ) : await anitaku.fetchAnimeList(page);
 
         reply.status(200).send(res);
       } catch (err) {
@@ -280,11 +280,11 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
       const res = redis ? await cache.fetch(
         redis as Redis,
         `${redisPrefix}download-${downloadLink}`,
-        async () => await gogoanime
+        async () => await anitaku
         .fetchDirectDownloadLink(downloadLink)
         .catch((err) => reply.status(404).send({ message: err })),
         redisCacheTime * 24,
-      ) : await gogoanime
+      ) : await anitaku
       .fetchDirectDownloadLink(downloadLink, process.env.RECAPTCHATOKEN ?? '')
       .catch((err) => reply.status(404).send({ message: err }));
       reply.status(200).send(res);
